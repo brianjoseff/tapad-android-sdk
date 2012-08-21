@@ -1,6 +1,7 @@
 package com.tapad.tracking;
 
 import android.content.Context;
+import android.webkit.WebView;
 
 public class DeviceInfo {
 
@@ -12,7 +13,12 @@ public class DeviceInfo {
     }
 
     public static String getUserAgent(Context context) {
-        if (isTablet(context)) return "Android Tablet/TapadEventAPI/1.0";
-        else return "Android Mobile/TapadEventAPI/1.0";
+        WebView wv = new WebView(context);
+        String userAgent = wv.getSettings().getUserAgentString();
+        wv.destroy();
+
+        return userAgent;
+//        if (isTablet(context)) return "Android Tablet/TapadEventAPI/1.0";
+//        else return "Android Mobile/TapadEventAPI/1.0";
     }
 }

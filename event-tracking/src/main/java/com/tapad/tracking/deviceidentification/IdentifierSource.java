@@ -1,11 +1,15 @@
 package com.tapad.tracking.deviceidentification;
 
+import android.content.Context;
+
+import java.util.List;
+
 /**
- * Created with IntelliJ IDEA.
- * User: lqiu
- * Date: 8/20/12
- * Time: 4:39 PM
- * To change this template use File | Settings | File Templates.
+ * Produces identifiers
  */
 public interface IdentifierSource {
+    /**
+     * @return An collection of identifiers this source is able to produce
+     */
+    List<TypedIdentifier> get(Context context);
 }

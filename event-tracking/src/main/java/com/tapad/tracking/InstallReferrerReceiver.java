@@ -28,16 +28,32 @@ public class InstallReferrerReceiver extends BroadcastReceiver {
     @Override
     public void onReceive(Context context, Intent intent) {
         Bundle extras = intent.getExtras();
-        if (extras != null && extras.getString("referrer") != null) {
-            String referrerString = extras.getString("referrer");
-            try {
-                Tracking.setupAPI(context, null);
-                Tracking.get().onEvent(Tracking.EVENT_INSTALL, "android_referrer=" + URLEncoder.encode(referrerString, "UTF-8"));
-                // Register that the install event now has been sent
-                PreferenceManager.getDefaultSharedPreferences(context).edit().putBoolean(Tracking.PREF_INSTALL_SENT, true).commit();
-            } catch (Exception e) {
-                Logging.error("Tapad/InstallReferrerReceiver", "Error parsing referrer. Install event will not be sent. " + e.getMessage());
+        String referrerString = null;
+
+        try {
+            if (extras != null) {
+                referrerString = extras.getString("referrer");
             }
+
+            Tracking.setupAPI(context, null, null);
+
+            if (referrerString == null) {
+                Tracking.get().onEvent(Tracking.EVENT_INSTALL);
+            }
+            else {
+                try {
+                    Tracking.get().onEvent(Tracking.EVENT_INSTALL, "android_referrer=" + URLEncoder.encode(referrerString, "UTF-8"));
+                }
+                catch (java.io.UnsupportedEncodingException uee) {
+                    Logging.error("Tapad/InstallReferrerReceiver", "Error encoding referrer. Install event will not be sent with referrer value. " + uee.getMessage());
+                    Tracking.get().onEvent(Tracking.EVENT_INSTALL);
+                }
+            }
+            // Register that the install event now has been sent
+            PreferenceManager.getDefaultSharedPreferences(context).edit().putBoolean(Tracking.PREF_INSTALL_SENT, true).commit();
+        }
+        catch (Exception e) {
+            Logging.error("Tapad/InstallReferrerReceiver", "Unexpected error caught in INSTALL_REFERRER intent receiver. Install event will not be sent. " + e.getMessage());
         }
     }
 }

@@ -1,11 +1,23 @@
 package com.tapad.util;
 
+import java.math.BigInteger;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+
 /**
- * Created with IntelliJ IDEA.
- * User: lqiu
- * Date: 8/20/12
- * Time: 5:09 PM
- * To change this template use File | Settings | File Templates.
+ * Convenience methods for digest hashing data
  */
 public class DigestUtil {
+
+    public static String md5Hash(String source) throws NoSuchAlgorithmException {
+        MessageDigest digest = MessageDigest.getInstance("MD5");
+        digest.update(source.getBytes(), 0, source.length());
+        return String.format("%032X", new BigInteger(1, digest.digest()));
+    }
+
+    public static String sha1Hash(String source) throws NoSuchAlgorithmException {
+        MessageDigest digest = MessageDigest.getInstance("SHA1");
+        digest.update(source.getBytes(), 0, source.length());
+        return String.format("%040X", new BigInteger(1, digest.digest()));
+    }
 }
