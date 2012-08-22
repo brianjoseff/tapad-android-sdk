@@ -57,11 +57,11 @@ public class Tracking {
      * ...
      * </application>
      * <p/>
-     * The default id sources are AndroidId, PhoneId, WifiMac and BuildSerial, but
+     * The default id sources are AndroidId, PhoneId, and WifiMac, but
      * this can be configured to suit the developer's privacy policy through the AndroidManifest.xml:
      * <p/>
      * <application>
-     * <meta-data android:name="tapad.ID_SOURCES" android:value="AndroidId,PhoneId,WifiMac,BuildSerial"/>
+     * <meta-data android:name="tapad.ID_SOURCES" android:value="AndroidId,PhoneId,WifiMac"/>
      * ...
      * </application>
      *
@@ -154,7 +154,7 @@ public class Tracking {
      * @return the list of default id sources
      */
     private static List<IdentifierSource> defaultIdSources() {
-        return Arrays.asList(new AndroidId(), new PhoneId(), new WifiMac(), new BuildSerial());
+        return Arrays.asList(new AndroidId(), new PhoneId(), new WifiMac());
     }
 
     /**

@@ -15,8 +15,6 @@ public class TypedIdentifier {
     public static final String TYPE_PHONE_ID_MD5 = "104";
     public static final String TYPE_WIFI_MAC_SHA1 = "105";
     public static final String TYPE_WIFI_MAC_MD5 = "106";
-    public static final String TYPE_BUILD_SERIAL_SHA1 = "107";
-    public static final String TYPE_BUILD_SERIAL_MD5 = "108";
 
     private String type = null;
     private String value = null;

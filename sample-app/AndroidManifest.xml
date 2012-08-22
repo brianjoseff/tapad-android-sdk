@@ -21,8 +21,8 @@
         <!-- End -->
 
         <!-- Tapad Tracking ids to be collected. Defaults to AndroidId if not specified -->
-        <!-- Available Values are: AndroidId, PhoneId, WifiMac, BuildSerial -->
-        <meta-data android:name="tapad.ID_SOURCES" android:value="AndroidId,PhoneId,WifiMac,BuildSerial"/>
+        <!-- Available Values are: AndroidId, PhoneId, WifiMac -->
+        <meta-data android:name="tapad.ID_SOURCES" android:value="AndroidId,PhoneId,WifiMac"/>
         <!-- End -->
 
         <!-- Swappit Ad Serving properties -->
