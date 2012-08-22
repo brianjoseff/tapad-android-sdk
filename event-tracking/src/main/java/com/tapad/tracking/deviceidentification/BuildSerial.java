@@ -2,7 +2,6 @@ package com.tapad.tracking.deviceidentification;
 
 import android.content.Context;
 import android.os.Build;
-import android.provider.Settings;
 import com.tapad.util.DigestUtil;
 import com.tapad.util.Logging;
 
@@ -13,7 +12,7 @@ import java.util.List;
 /**
  * This class knows how to fetch and encode android.os.Build.SERIAL
  * This constant is only available as of 2.3 (API level 9).
- *
+ * <p/>
  * Gets the build serial hashed with MD5 and formatted as a 32 byte hexadecimal number.
  * Gets the build serial hashed with SHA1 and formatted as a 40 byte hexadecimal number.
  */
@@ -26,18 +25,15 @@ public class BuildSerial implements IdentifierSource {
         if (buildSerial != null) {
             try {
                 ids.add(new TypedIdentifier(TypedIdentifier.TYPE_BUILD_SERIAL_MD5, DigestUtil.md5Hash(buildSerial)));
-            }
-            catch (NoSuchAlgorithmException nsae) {
+            } catch (NoSuchAlgorithmException nsae) {
                 Logging.error("Tracking", "Error hashing Build.SERIAL - MD5 not supported");
             }
             try {
                 ids.add(new TypedIdentifier(TypedIdentifier.TYPE_BUILD_SERIAL_SHA1, DigestUtil.sha1Hash(buildSerial)));
-            }
-            catch (NoSuchAlgorithmException nsae) {
+            } catch (NoSuchAlgorithmException nsae) {
                 Logging.error("Tracking", "Error hashing Build.SERIAL - SHA1 not supported");
             }
-        }
-        else {
+        } else {
             Logging.warn("Tracking", "Error retrieving Build.SERIAL.");
         }
         return (ids);

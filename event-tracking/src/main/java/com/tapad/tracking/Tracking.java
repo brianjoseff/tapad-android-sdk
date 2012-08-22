@@ -5,17 +5,12 @@ import android.content.SharedPreferences;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.preference.PreferenceManager;
-import android.provider.Settings;
 import android.text.TextUtils;
-import com.tapad.tracking.deviceidentification.AndroidId;
-import com.tapad.tracking.deviceidentification.IdentifierSource;
-import com.tapad.tracking.deviceidentification.IdentifierSourceAggregator;
-import com.tapad.tracking.deviceidentification.TypedIdentifier;
+import com.tapad.tracking.deviceidentification.*;
 import com.tapad.util.Logging;
 
-import java.math.BigInteger;
-import java.security.MessageDigest;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 
@@ -61,12 +56,13 @@ public class Tracking {
      * <meta-data android:name="tapad.APP_ID" android:value="INSERT_APP_ID_HERE"/>
      * ...
      * </application>
-     *
-     * The default id sources are AndroidId.  Optionally, the id sources can be specified through the AndroidManifest.xml:
+     * <p/>
+     * The default id sources are AndroidId, PhoneId, WifiMac and BuildSerial, but
+     * this can be configured to suit the developer's privacy policy through the AndroidManifest.xml:
      * <p/>
      * <application>
-     *     <meta-data android:name="tapad.ID_SOURCES" android:value="AndroidId,PhoneId,WifiMac,BuildSerial"/>
-     *     ...
+     * <meta-data android:name="tapad.ID_SOURCES" android:value="AndroidId,PhoneId,WifiMac,BuildSerial"/>
+     * ...
      * </application>
      *
      * @param context a context reference
@@ -84,11 +80,10 @@ public class Tracking {
      * <p/>
      * One of the initialization functions must be called before TrackingService.get().
      *
-     * @param context a context reference
-     * @param appId   the application identifier
+     * @param context   a context reference
+     * @param appId     the application identifier
      * @param idSources a list of identifier sources to use to collect ids
      * @see #init(android.content.Context)
-     *
      */
     public static void init(Context context, String appId, List<IdentifierSource> idSources) {
         setupAPI(context, appId, idSources);
@@ -127,19 +122,17 @@ public class Tracking {
                         ApplicationInfo ai = context.getPackageManager().getApplicationInfo(context.getPackageName(), PackageManager.GET_META_DATA);
                         String[] idSourceClasses = ai.metaData.getString("tapad.ID_SOURCES").split(",");
                         idSources = new ArrayList<IdentifierSource>();
-                        for (int i=0; i<idSourceClasses.length; i++) {
+                        for (String className : idSourceClasses) {
                             try {
-                                idSources.add((IdentifierSource)Class.forName("com.tapad.tracking.deviceidentification." + idSourceClasses[i].trim()).newInstance());
-                            }
-                            catch (Exception e) {
-                                Logging.warn("Tracking", "Unable to instantiate identifier source: " + idSourceClasses[i].trim());
+                                idSources.add((IdentifierSource) Class.forName("com.tapad.tracking.deviceidentification." + className.trim()).newInstance());
+                            } catch (Exception e) {
+                                Logging.warn("Tracking", "Unable to instantiate identifier source: " + className.trim());
                             }
                         }
                         if (idSources.isEmpty()) {
                             idSources = defaultIdSources();
                         }
-                    }
-                    catch (Exception e) {
+                    } catch (Exception e) {
                         idSources = defaultIdSources();
                     }
                 }
@@ -156,14 +149,12 @@ public class Tracking {
 
     /**
      * Creates the default identifier sources to use should none be specified.
-     * The default is AndroidId
+     * The default is all.
      *
      * @return the list of default id sources
      */
     private static List<IdentifierSource> defaultIdSources() {
-        List<IdentifierSource> idSources = new ArrayList<IdentifierSource>();
-        idSources.add(new AndroidId());
-        return (idSources);
+        return Arrays.asList(new AndroidId(), new PhoneId(), new WifiMac(), new BuildSerial());
     }
 
     /**
@@ -178,22 +169,20 @@ public class Tracking {
         // do not attempt to collect any ids if the device is opted out
         if (OPTED_OUT_DEVICE_ID.equals(deviceId)) {
             typedDeviceIds = null;
-        }
-        else {
+        } else {
             // collect ids
             List<TypedIdentifier> ids = idCollector.get(context);
             // if no ids
             if (ids.isEmpty()) {
                 // generate and store a new id if there is no saved id
                 if (deviceId == null) {
-                    Logging.warn("Tracking", "Unable to retrieve any device identifiers, using a UDID instead.");
+                    Logging.warn("Tracking", "Unable to retrieve any device identifiers, using a UUID instead.");
                     deviceId = UUID.randomUUID().toString();
                     PreferenceManager.getDefaultSharedPreferences(context).edit().putString(PREF_TAPAD_DEVICE_ID, deviceId).commit();
                 }
                 // ensure that typed id is set to null
                 typedDeviceIds = null;
-            }
-            else {
+            } else {
                 // set the deviceId to the first typed id, but don't save it in prefs because that space is reserved for the generated UUID/Opt-out
                 deviceId = ids.get(0).getValue();
                 // set the typedDeviceIds to the full string representation

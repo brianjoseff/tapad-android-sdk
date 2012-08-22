@@ -17,7 +17,7 @@ import java.net.URLEncoder;
  * <action android:name="com.android.vending.INSTALL_REFERRER" />
  * </intent-filter>
  * </receiver>
- *
+ * <p/>
  * To test referral:
  * <pre>
  *    adb shell
@@ -39,20 +39,13 @@ public class InstallReferrerReceiver extends BroadcastReceiver {
 
             if (referrerString == null) {
                 Tracking.get().onEvent(Tracking.EVENT_INSTALL);
-            }
-            else {
-                try {
-                    Tracking.get().onEvent(Tracking.EVENT_INSTALL, "android_referrer=" + URLEncoder.encode(referrerString, "UTF-8"));
-                }
-                catch (java.io.UnsupportedEncodingException uee) {
-                    Logging.error("Tapad/InstallReferrerReceiver", "Error encoding referrer. Install event will not be sent with referrer value. " + uee.getMessage());
-                    Tracking.get().onEvent(Tracking.EVENT_INSTALL);
-                }
+            } else {
+                Tracking.get().onEvent(Tracking.EVENT_INSTALL, "android_referrer=" + URLEncoder.encode(referrerString, "UTF-8"));
             }
             // Register that the install event now has been sent
             PreferenceManager.getDefaultSharedPreferences(context).edit().putBoolean(Tracking.PREF_INSTALL_SENT, true).commit();
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
+            // Precautionary
             Logging.error("Tapad/InstallReferrerReceiver", "Unexpected error caught in INSTALL_REFERRER intent receiver. Install event will not be sent. " + e.getMessage());
         }
     }
